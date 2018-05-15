@@ -2,9 +2,9 @@ _site
 .sass-cache
 .jekyll-metadata
 .idea/*
-data/train
-data/test
-data/validation
-venv
+data/train-*
+data/test-*
+data/validation-*
+venv/*
 __pycache__
 .~*
