@@ -1,6 +1,10 @@
 from __future__ import print_function, division
 
+import datetime
+import time
+
 import numpy as np
+import random
 
 import torch
 from tensorboardX import SummaryWriter
@@ -14,22 +18,25 @@ import models
 import pytorch_patches
 from data import Imaterialist, load_annotations, get_data_loader
 from models import get_resnet_model
-from train import sawtooth, Trainer
+from train import sawtooth, Trainer, LRSensitivity
 
 print("Is CUDA available?: {}".format(torch.cuda.is_available()))
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.manual_seed(int(time.time()))
+random.seed(time.time())
+np.random.seed(int(time.time()))
 annotations = load_annotations()
 
-model_file = "runs/"+ "May10_14-35-49_cs231n-1resnet18-clr0.0001-1-mom0.9" + "/model_best.pth.tar" # 0.418
-model_file = "runs/"+ "May10_17-30-52_cs231n-1resnet101-bs-64-clr0.0001-0.5-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.491
-model_file = "runs/"+ "May11_05-47-56_cs231n-1resnet101-bs-64-clr5e-6-0.05-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.502
+#model_file = "runs/"+ "May10_14-35-49_cs231n-1resnet18-clr0.0001-1-mom0.9" + "/model_best.pth.tar" # 0.418
+#model_file = "runs/"+ "May10_17-30-52_cs231n-1resnet101-bs-64-clr0.0001-0.5-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.491
+#model_file = "runs/"+ "May11_05-47-56_cs231n-1resnet101-bs-64-clr5e-6-0.05-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.502
 model_file = "runs/"+ "May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3" + "/model_best.pth.tar" # 0.599
 #model_file=None
-model_file = "runs/"+ "May15_16-31-15_cs231n-1nasnet-bs-64-clr1e-5-0.1-mom0.9-pos-weight3" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
-model_file = "runs/"+ "May15_17-20-35_cs231n-1nasnet-bs-64-clr1e-4-0.01-rmsprop0.9-1-pos-weight3-wd4e-5-fromcell17" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
+#model_file = "runs/"+ "May15_16-31-15_cs231n-1nasnet-bs-64-clr1e-5-0.1-mom0.9-pos-weight3" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
+#model_file = "runs/"+ "May15_17-20-35_cs231n-1nasnet-bs-64-clr1e-4-0.01-rmsprop0.9-1-pos-weight3-wd4e-5-fromcell17" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
 
-#model_type = "resnet101"
-model_type = "nasnetlarge"
+model_type = "resnet101"
+#model_type = "nasnetlarge"
 
 pretrained=False
 if not model_file:
@@ -66,16 +73,17 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 #optimizer_ft = optim.SGD(model_ft.fc.parameters(), lr=0.00001, momentum=0.9)
 # https://github.com/tensorflow/models/issues/2648#issuecomment-340663699
 # https://github.com/tensorflow/models/blob/master/research/slim/nets/nasnet/nasnet.py
-optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
+#optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
+optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0001)
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
-exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)
+exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
 
-trainer = Trainer("nasnet-bs-64-clr1e-3-0.1-rmsprop0.9-1-pos-weight3-wd4e-5-fromcell17",
+trainer = Trainer("resnet101-bs-64-lr0.001-mom0.9-wd4e-4-pos-weight3-test",
                   model,
                   criterion,
                   optimizer_ft,
@@ -83,10 +91,17 @@ trainer = Trainer("nasnet-bs-64-clr1e-3-0.1-rmsprop0.9-1-pos-weight3-wd4e-5-from
                   dataloaders['train'],
                   dataloaders['validation'],
                   device,
-                  samples_limit=15000,
-                  validation_samples_limit=4000
-                  )#30000)
+                  samples_limit=25000,
+                  validation_samples_limit=5000,
+                  thresholds=model.thresholds
+                  )
 trainer.train_model(1000)
+
+# lr_sensitivity = LRSensitivity(model,
+#                                criterion,
+#                                dataloaders['train'],
+#                                device)
+# lr_sensitivity.run("lr_vs_loss_May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3.png")
 
 # TODO: [x] label smoothing https://github.com/tensorflow/tensorflow/blob/r1.8/tensorflow/python/ops/losses/losses_impl.py#L706
 # TODO: [ ] grad norm https://pytorch.org/docs/stable/nn.html?highlight=clip_grad_norm#torch.nn.utils.clip_grad_norm_

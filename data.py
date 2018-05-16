@@ -236,7 +236,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None):
   if not annotations:
     annotations = load_annotations()
   image_dataset = Imaterialist(path, annotations[type], data_transforms[type], read_labels=type in ['train', 'validation'])
-  dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=64,
+  dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=1,
                                                shuffle=True, num_workers=7)
 
   return image_dataset, dataloader

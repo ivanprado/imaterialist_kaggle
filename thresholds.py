@@ -81,7 +81,7 @@ def calculate_optimal_thresholds_by_brackets(labels, confidences, convergence_sp
   return better
 
 
-def calculate_optimal_thresholds(labels, confidences, slices=1000):
+def calculate_optimal_thresholds(labels, confidences, slices=1000, old_thresholds=None):
 
   with torch.set_grad_enabled(False):
     labels = np.array(labels)
@@ -99,15 +99,17 @@ def calculate_optimal_thresholds(labels, confidences, slices=1000):
       return (
         f1_score(*reduce_stats(*multilabel_stats(labels_t, confidences_t, torch.from_numpy(thresholds.astype(np.float32))))))[0]
 
-    var = np.zeros((n_classes, slices), dtype=np.float32)
-    for i in range(100, slices-100):
+    var = np.zeros((n_classes, slices+1), dtype=np.float32)
+    for i in range(slices+1):
       th = (np.ones(n_classes) * (i / slices))
       th = th.astype(np.float32)
       var[:, i] = eval(th)
 
-    optimal = (np.argmax(var, axis=1) + 100) / slices
+    optimal = (np.argmax(var, axis=1) + (slices - np.argmax(np.flip(var, 1), axis=1))) / (2 * slices)
+    if not old_thresholds:
+      old_thresholds = np.ones(n_classes, dtype=np.float32)/2
 
-    print("Old {}, New optimal F1: {:.4f}".format(eval_global(np.ones(n_classes, dtype=np.float32)/2),
-                                                  eval_global(optimal)))
+    print("New optimal thresholds, F1: {:.4f}, with old ones F1: {}".format(
+      eval_global(optimal), eval_global(old_thresholds/2)))
 
     return optimal

@@ -1,14 +1,18 @@
 import time
+from collections import OrderedDict
 
 import copy
 import numpy as np
 import os
 import torch
 from tensorboardX import SummaryWriter
+from torch.optim import lr_scheduler
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from measures import multilabel_stats, reduce_stats, f1_score
-from thresholds import calculate_optimal_thresholds_by_brackets
+from thresholds import calculate_optimal_thresholds_by_brackets, calculate_optimal_thresholds
+
 
 class Trainer:
 
@@ -23,7 +27,8 @@ class Trainer:
                device,
                samples_limit=None,
                validation_samples_limit=None,
-               thresholds=0.5):
+               thresholds=0.5,
+               summary_writer=None):
     self.description = description
     self.model = model
     self.criterion = criterion
@@ -36,8 +41,13 @@ class Trainer:
     self.validation_samples_limit = validation_samples_limit
     self.thresholds = thresholds
 
-    self.tensorboard = SummaryWriter(comment=description)
-    self.running_dir = self.tensorboard.file_writer.get_logdir()
+    if not summary_writer:
+      self.tensorboard = SummaryWriter(comment=description)
+      self.running_dir = self.tensorboard.file_writer.get_logdir()
+    else:
+      self.tensorboard = summary_writer
+      self.running_dir = None
+
 
   def train_model(self, num_epochs=25):
     board = self.tensorboard
@@ -54,46 +64,47 @@ class Trainer:
     best_model_wts = copy.deepcopy(self.model.state_dict())
     best_f1 = 0.0
     self.global_step = 0
-    thresholds = 0.5
+    thresholds = self.thresholds
 
     for epoch in range(num_epochs):
       print('Epoch {}/{}'.format(epoch, num_epochs - 1))
       print('-' * 10)
 
       # Each epoch has a training and validation phase
-      for phase in ['train', 'validation']:
+      phases = ['train']
+      if self.val_dataloader:
+        phases += ['validation']
+      for phase in phases:
         phase_start = time.time()
         if phase == 'train':
           scheduler.step()
           board.add_scalars("epoch/optimizer", {
             'lr': scheduler.get_lr()[0]
-          }, self.global_step)
+          }, self.global_step + 1)
 
-          epoch_loss, epoch_labels, epoch_confidences = self._train_epoch()
+          loss, labels, confidences = self._train_epoch()
 
-          thresholds = calculate_optimal_thresholds_by_brackets(epoch_labels, epoch_confidences, init_boundaries=False,
+          calculate_optimal_thresholds_by_brackets(labels, confidences, init_boundaries=False,
                                                                 convergence_speed=0.01, iterations=90)
-
-          epoch_f1, epoch_precision, epoch_recall = \
-            f1_score(*reduce_stats(
-              *multilabel_stats(np.array(labels, dtype=np.float32), np.array(confidences, dtype=np.float32),
-                                threshold=thresholds)))
+          thresholds = calculate_optimal_thresholds(labels, confidences, slices=1000,
+                                                    old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
+          self.thresholds = thresholds
 
         else:
           image_ids, labels, preds, confidences, global_scores, per_class_scores = \
             infer(model, dataloaders[phase], self.device, samples_limit=self.validation_samples_limit)
 
-          epoch_f1, epoch_precision, epoch_recall = \
-            f1_score(*reduce_stats(
-              *multilabel_stats(np.array(labels, dtype=np.float32), np.array(confidences, dtype=np.float32),
-                                threshold=thresholds)))
+        f1, precision, recall = \
+          f1_score(*reduce_stats(
+            *multilabel_stats(np.array(labels, dtype=np.float32), np.array(confidences, dtype=np.float32),
+                              threshold=thresholds)))
 
         print('{} loss: {:.4f} F1: {:.4f}, precision: {:.4f}, recall: {:.4f}'.format(
-          phase, epoch_loss, epoch_f1, epoch_precision, epoch_recall))
+          phase, loss, f1, precision, recall))
 
         # deep copy the model
-        if phase == 'validation' and epoch_f1 > best_f1:
-          best_f1 = epoch_f1
+        if phase == 'validation' and f1 > best_f1:
+          best_f1 = f1
           # best_model_wts = copy.deepcopy(model.state_dict())
           model_path = os.path.join(self.running_dir, "model_best.pth.tar")
           thresholds_path = model_path + ".thresholds"
@@ -102,18 +113,11 @@ class Trainer:
           print("Saving thresholds to '{}'".format(thresholds_path))
           np.save(thresholds_path, thresholds)
 
-        board.add_scalars("epoch/loss", {
-          'train': epoch_loss
-        }, self.global_step)
-        board.add_scalars("epoch/f1", {
-          phase: epoch_f1
-        }, self.global_step)
-        board.add_scalars("epoch/precision", {
-          phase: epoch_precision
-        }, self.global_step)
-        board.add_scalars("epoch/recall", {
-          phase: epoch_recall
-        }, self.global_step)
+        if phase == 'train':
+          board.add_scalars("epoch/loss", {'train': loss}, self.global_step)
+        board.add_scalars("epoch/f1", {phase: f1}, self.global_step)
+        board.add_scalars("epoch/precision", {phase: precision}, self.global_step)
+        board.add_scalars("epoch/recall", {phase: recall}, self.global_step)
 
         phase_elapsed = time.time() - phase_start
         print("{} phase took {:.0f}s".format(phase, phase_elapsed))
@@ -185,8 +189,75 @@ class Trainer:
     return epoch_loss, epoch_labels, epoch_confidences
 
 
+class LRSensitivity(Trainer):
+
+  def __init__(self,
+               model,
+               criterion,
+               train_dataloader,
+               device):
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-5)
+    scheduler = lr_scheduler.ExponentialLR(optimizer, 1.1)
+    self.epochs = 121
+    board = BoardCapturer()
+
+    super().__init__("",
+                     model,
+                     criterion,
+                     optimizer,
+                     scheduler,
+                     train_dataloader,
+                     None,
+                     device,
+                     samples_limit=train_dataloader.batch_size,
+                     validation_samples_limit=None,
+                     thresholds=0.5,
+                     summary_writer=board)
+
+  def run(self, plot_file):
+    super().train_model(self.epochs)
+
+    lrs, losses = self.tensorboard.lr_vs_loss()
+    plt.plot(lrs, losses)
+    plt.title("Learning rate sensitivity")
+    plt.ylabel("loss")
+    plt.xlabel("learning rate")
+    plt.xscale("log")
+    plt.savefig(plot_file, bbox_inches='tight')
+
+
+class BoardCapturer:
+  '''Mimics SummaryWritter, but just captures data into self.data'''
+  def __init__(self, *kargs, **kwargs):
+    self.data = {}
+
+  def add_scalars(self, prefix, values, step):
+    for k, v in values.items():
+      key = prefix + "/" + k
+      self.add_scalar(key, v, step)
+
+  def add_scalar(self, key, value, step):
+    if not key in self.data:
+      self.data[key] = OrderedDict()
+    self.data[key][step] = value
+
+  def a_vs_b(self, key_a, key_b):
+    a_d = self.data[key_a]
+    b_d = self.data[key_b]
+
+    a_s, b_s = [], []
+    for step, a in a_d.items():
+      if step in b_d:
+        a_s.append(a)
+        b_s.append(b_d[step])
+
+    return a_s, b_s
+
+  def lr_vs_loss(self):
+    return self.a_vs_b('epoch/optimizer/lr', 'epoch/loss/train')
+
+
 def infer(model, dataloader, device, threshold=0.5, samples_limit=None):
-  ## WORK IN PROGRESS
   running_stats = (0., 0., 0.)
 
   ret_labels = []

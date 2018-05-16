@@ -2,6 +2,22 @@ import pretrainedmodels
 import torch
 from torch import nn
 import torchvision
+import numpy as np
+
+
+def load_model(model, model_file):
+  print("Loading model from {}".format(model_file))
+  model.load_state_dict(torch.load(model_file))
+
+  try:
+    thresholds_file = model_file + ".thresholds.npy"
+    thresholds = np.load(thresholds_file)
+  except FileNotFoundError:
+    print("Not possible to load thresholds file from {}. Using default 0.5 threshold".format(thresholds_file))
+    thresholds = 0.5
+
+  model.thresholds = thresholds
+
 
 def get_resnet_model(model_class, num_classes, model_file=None, pretrained=False):
   model_ft = model_class(pretrained=pretrained)
@@ -12,8 +28,7 @@ def get_resnet_model(model_class, num_classes, model_file=None, pretrained=False
   model_ft.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
   if model_file:
-    print("Loading model from {}".format(model_file))
-    model_ft.load_state_dict(torch.load(model_file))
+    load_model(model_ft, model_file)
 
   return model_ft
 
@@ -30,8 +45,7 @@ def get_nasnet_model(model_class, num_classes, model_file=None, pretrained=False
   # model_ft.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
   if model_file:
-    print("Loading model from {}".format(model_file))
-    model.load_state_dict(torch.load(model_file))
+    load_model(model, model_file)
 
   # Disabling grads for a test by now
   enable_params(model, False)
