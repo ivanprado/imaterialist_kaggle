@@ -31,6 +31,8 @@ annotations = load_annotations()
 #model_file = "runs/"+ "May10_17-30-52_cs231n-1resnet101-bs-64-clr0.0001-0.5-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.491
 #model_file = "runs/"+ "May11_05-47-56_cs231n-1resnet101-bs-64-clr5e-6-0.05-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.502
 model_file = "runs/"+ "May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3" + "/model_best.pth.tar" # 0.599
+model_file = "runs/"+ "May16_13-38-21_cs231n-1resnet101-bs-64-lr0.01-mom0.9-wd4e-4-pos-weight3" + "/model_best.pth.tar" # 0.603
+
 #model_file=None
 #model_file = "runs/"+ "May15_16-31-15_cs231n-1nasnet-bs-64-clr1e-5-0.1-mom0.9-pos-weight3" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
 #model_file = "runs/"+ "May15_17-20-35_cs231n-1nasnet-bs-64-clr1e-4-0.01-rmsprop0.9-1-pos-weight3-wd4e-5-fromcell17" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
