@@ -8,6 +8,7 @@ from torchvision import transforms
 from torchvision.datasets.folder import default_loader, has_file_allowed_extension
 import numpy as np
 
+import models
 
 def make_dataset(dir, class_to_idx, img_to_classes, read_labels):
   images = []
@@ -209,9 +210,10 @@ class ChunkSampler(sampler.Sampler):
   def __len__(self):
     return self.num_samples
 
-def get_data_loader(path, type='validation', annotations=None):
-  img_size = 224
-  img_stats = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+def get_data_loader(path, model_type, type='validation', annotations=None):
+  model_cfg = models.models[model_type]
+  img_size = model_cfg['input_size']
+  img_stats = model_cfg['mean'], model_cfg['std']
   dt_test = transforms.Compose([
     # transforms.Resize(256),
     # transforms.CenterCrop(224),

@@ -8,3 +8,4 @@ data/validation-*
 venv/*
 __pycache__
 .~*
+runs/*
