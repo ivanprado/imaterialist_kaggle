@@ -82,7 +82,6 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-
 trainer = Trainer("resnet101-bs-64-lr0.001-mom0.9-wd4e-4-pos-weight3-test",
                   model,
                   criterion,
