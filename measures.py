@@ -24,6 +24,41 @@ def multilabel_stats(y_true, y_pred, threshold=0.5):
     return (true_positives.cpu().numpy(), false_positive.cpu().numpy(), false_negatives.cpu().numpy())
 
 
+def multilabel_stats_np(y_true, confidences, threshold=0.5):
+  '''
+  Given a numpy y_true and confidences it returns the array
+  (true_positives, false_positives, false_negatives)
+
+  Of shape 3 x C if len(thresholds.shape)<2
+           3 x T x C if len(thresholds.shape)==2
+  '''
+  if not isinstance(y_true, np.ndarray):
+    y_true = np.array(y_true)
+  if not isinstance(confidences, np.ndarray):
+    confidences = np.array(confidences)
+  if not isinstance(threshold, np.ndarray):
+    threshold = np.array(threshold)
+
+  if len(threshold.shape) == 2:
+    confidences = confidences[:,np.newaxis,:]
+    y_true = y_true[:,np.newaxis,:]
+    np.repeat(confidences, threshold.shape[0], axis=1)
+    y_pred = confidences > threshold
+
+  true_positives = (y_true * y_pred).sum(0)
+  false_positive = ((1-y_true) * y_pred).sum(0)
+  false_negatives = (y_true  * (1 - y_pred)).sum(0)
+  return np.array([true_positives, false_positive, false_negatives])
+
+def f1_score_np(stats):
+  true_positives, false_positives, false_negatives = stats[0], stats[1], stats[2]
+  avoiding_div_by_zero = true_positives == 0
+  precision = true_positives / (true_positives + false_positives + avoiding_div_by_zero)
+  recall = true_positives / (true_positives + false_negatives + avoiding_div_by_zero)
+  f1_score = (2 * precision * recall) / (precision + recall + avoiding_div_by_zero)
+  return (f1_score, precision, recall)
+
+
 def reduce_stats(true_positives, false_positives, false_negatives):
   return (true_positives.sum(), false_positives.sum(), false_negatives.sum())
 

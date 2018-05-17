@@ -11,7 +11,8 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 from measures import multilabel_stats, reduce_stats, f1_score
-from thresholds import calculate_optimal_thresholds_by_brackets, calculate_optimal_thresholds
+from thresholds import calculate_optimal_thresholds_by_brackets, calculate_optimal_thresholds, \
+  calculate_optimal_thresholds_one_by_one
 from utils import vector_to_index_list
 
 
@@ -85,10 +86,8 @@ class Trainer:
 
           loss, labels, confidences = self._train_epoch()
 
-          thresholds = calculate_optimal_thresholds_by_brackets(labels, confidences, init_boundaries=False,
-                                                                convergence_speed=0.01, iterations=90)
-          calculate_optimal_thresholds(labels, confidences, slices=500,
-                                                    old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
+          thresholds = calculate_optimal_thresholds_one_by_one(labels, confidences, slices=250,
+                              old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
           self.thresholds = thresholds
 
         else:

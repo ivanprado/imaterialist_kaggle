@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from measures import multilabel_stats, reduce_stats, f1_score, just_f1
+from measures import multilabel_stats, reduce_stats, f1_score, just_f1, multilabel_stats_np, f1_score_np
 
 
 def threshold_boundaries(labels, confidences):
@@ -118,3 +118,51 @@ def calculate_optimal_thresholds(labels, confidences, slices=1000, old_threshold
 
 
     return optimal
+
+
+def calculate_optimal_thresholds_one_by_one(labels, confidences, slices=1000, old_thresholds=None):
+
+  with torch.set_grad_enabled(False):
+    labels = np.array(labels)
+    labels_t = torch.from_numpy(labels)
+    confidences = np.array(confidences)
+    confidences_t = torch.from_numpy(confidences)
+    n_classes = labels.shape[1]
+
+    def eval(thresholds):
+      return (
+        f1_score(*multilabel_stats(labels_t, confidences_t,
+                                   torch.from_numpy(thresholds.astype(np.float32)))))[0]
+
+    def eval_global(thresholds):
+      return (
+        f1_score(*reduce_stats(*multilabel_stats(labels_t, confidences_t, torch.from_numpy(thresholds.astype(np.float32))))))[0]
+
+    thr = np.ones(n_classes, dtype=np.float32) * 0.5
+    slice_for_class = np.ones(n_classes, dtype=np.int) * int((slices + 1) / 2)
+    slice_vec = (np.arange(slices + 1, dtype=np.float32) / slices).reshape(-1, 1)
+    grid = np.repeat(slice_vec, n_classes, axis=1)
+    stats = multilabel_stats_np(labels, confidences, grid)  # 3 x T x C
+    for c in range(n_classes):
+      rest_stats = stats[:, slice_for_class, np.arange(n_classes)] # 3 x C
+      rest_stats[:, c] = 0 # clear my
+      rest_stats_agg = rest_stats.sum(axis=1) # 3
+
+      just_me_stats = stats[:, :, c].reshape(3, -1) # 3 x T
+      merge_stats = just_me_stats + rest_stats_agg.reshape(3,1) # 3 x T
+
+      f1s = f1_score_np(merge_stats)[0]
+      optimal_idx = (np.argmax(f1s) + (slices - np.argmax(np.flip(f1s, 0)))) // 2
+      optimal = optimal_idx / slices
+      f1 = np.max(f1s)
+      #print("F1 after optimizing class {}: {:.4}".format(c, f1))
+      thr[c] = optimal
+      slice_for_class[c] = optimal_idx
+
+    if old_thresholds is None:
+      old_thresholds = np.ones(n_classes, dtype=np.float32)/2
+
+    print("New optimal thresholds (one-by-one), F1: {:.4f}, with old one F1: {}".format(
+      eval_global(thr), eval_global(old_thresholds)))
+
+    return thr

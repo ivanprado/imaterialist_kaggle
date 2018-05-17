@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 from data import get_data_loader
 from models import get_resnet_model
 from train import infer
-
+import resource
 plt.ion()
 
 
 def run(img_set_folder, model_file, model_class, model_type, set_type, samples_limit=None, tta=False):
-  image_dataset, dataloader = get_data_loader(img_set_folder, model_type, set_type, batch_size=2, tta=tta)
+  image_dataset, dataloader = get_data_loader(img_set_folder, model_type, set_type, batch_size=4, tta=tta)
 
   class_names = image_dataset.classes
 
@@ -40,12 +40,17 @@ def run(img_set_folder, model_file, model_class, model_type, set_type, samples_l
   if set_type == 'test':
     image_dataset.save_kaggle_submision("kaggle_submision.csv", image_ids, preds)
 
+rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+print("LIMIT before: {}".format(rlimit))
+resource.setrlimit(resource.RLIMIT_NOFILE, (40000, rlimit[1]))
+rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+print("LIMIT after: {}".format(rlimit))
 
-
-img_set_folder = "data/test"
+img_set_folder = "data/validation"
 model_file= "runs/"+ "May11_05-47-56_cs231n-1resnet101-bs-64-clr5e-6-0.05-mom0.9-imgsize-224" + "/model_best.pth.tar" # 0.502
 model_file= "runs/"+ "May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3" + "/model_best.pth.tar" # 0.599
+model_file = "runs/"+ "May16_13-38-21_cs231n-1resnet101-bs-64-lr0.01-mom0.9-wd4e-4-pos-weight3" + "/model_best.pth.tar" # 0.603
 
 model_type="resnet101"
 
-run(img_set_folder, model_file, models.resnet101, model_type, 'test', samples_limit=None, tta=True)
+run(img_set_folder, model_file, models.resnet101, model_type, 'validation', samples_limit=None, tta=False)
