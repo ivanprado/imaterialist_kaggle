@@ -7,8 +7,11 @@ from torch.utils.data import Dataset, sampler
 from torchvision import transforms
 from torchvision.datasets.folder import default_loader, has_file_allowed_extension
 import numpy as np
+from torchvision.transforms import ToTensor, Normalize, Lambda
 
 import models
+from transformations import MultiScaleFiveCrop
+
 
 def make_dataset(dir, class_to_idx, img_to_classes, read_labels):
   images = []
@@ -96,6 +99,7 @@ class Imaterialist(Dataset):
   def save_kaggle_submision(self, file, img_ids, preds):
     with open(file, "w") as f:
       f.write("image_id,label_id\n")
+      assert len(img_ids) == len(preds), "Preds and ids not the same size preds: {}, img_ids{}!!".format(len(preds), len(img_ids))
       for id, pred in zip(img_ids, preds):
         cpreds = [self.idx_to_classes[cidx] for cidx in pred]
         f.write("{},{}\n".format(id, " ".join(cpreds)))
@@ -210,7 +214,7 @@ class ChunkSampler(sampler.Sampler):
   def __len__(self):
     return self.num_samples
 
-def get_data_loader(path, model_type, type='validation', annotations=None):
+def get_data_loader(path, model_type, type='validation', annotations=None, batch_size=64, tta=False):
   model_cfg = models.models[model_type]
   img_size = model_cfg['input_size']
   img_stats = model_cfg['mean'], model_cfg['std']
@@ -222,6 +226,13 @@ def get_data_loader(path, model_type, type='validation', annotations=None):
     transforms.ToTensor(),
     transforms.Normalize(*img_stats)
   ])
+  dt_test_multiscale_five = transforms.Compose([
+    MultiScaleFiveCrop(img_size),
+    Lambda(lambda crops: torch.stack([Normalize(*img_stats)(ToTensor()(crop)) for crop in crops]))
+  ])
+  if tta:
+    print("TTA: enabled")
+    dt_test = dt_test_multiscale_five
   data_transforms = {
     'train': transforms.Compose([
       transforms.RandomResizedCrop(img_size),
@@ -236,7 +247,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None):
   if not annotations:
     annotations = load_annotations()
   image_dataset = Imaterialist(path, annotations[type], data_transforms[type], read_labels=type in ['train', 'validation'])
-  dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=64,
+  dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
                                                shuffle=True, num_workers=7)
 
   return image_dataset, dataloader

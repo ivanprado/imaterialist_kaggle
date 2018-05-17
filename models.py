@@ -12,6 +12,7 @@ def load_model(model, model_file):
   try:
     thresholds_file = model_file + ".thresholds.npy"
     thresholds = np.load(thresholds_file)
+    print("Thresholds loaded from {}".format(thresholds_file))
   except FileNotFoundError:
     print("Not possible to load thresholds file from {}. Using default 0.5 threshold".format(thresholds_file))
     thresholds = 0.5
@@ -32,9 +33,11 @@ def get_resnet_model(model_class, num_classes, model_file=None, pretrained=False
 
   return model_ft
 
+
 def enable_params(module, enable):
   for param in module.parameters():
     param.requires_grad = enable
+
 
 def get_nasnet_model(model_class, num_classes, model_file=None, pretrained=False):
   model = model_class(num_classes=1000, pretrained='imagenet' if pretrained else False)
@@ -54,11 +57,13 @@ def get_nasnet_model(model_class, num_classes, model_file=None, pretrained=False
 
   return model
 
+
 def get_model(model_name, *kargs, **kwargs):
   model_conf = models[model_name]
   model = model_conf['model_builder'](model_conf['model_class'], *kargs, **kwargs)
 
   return model
+
 
 models = {
   'resnet101': {

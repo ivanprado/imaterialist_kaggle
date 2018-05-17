@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from measures import multilabel_stats, reduce_stats, f1_score
 from thresholds import calculate_optimal_thresholds_by_brackets, calculate_optimal_thresholds
+from utils import vector_to_index_list
 
 
 class Trainer:
@@ -84,9 +85,9 @@ class Trainer:
 
           loss, labels, confidences = self._train_epoch()
 
-          calculate_optimal_thresholds_by_brackets(labels, confidences, init_boundaries=False,
+          thresholds = calculate_optimal_thresholds_by_brackets(labels, confidences, init_boundaries=False,
                                                                 convergence_speed=0.01, iterations=90)
-          thresholds = calculate_optimal_thresholds(labels, confidences, slices=1000,
+          calculate_optimal_thresholds(labels, confidences, slices=500,
                                                     old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
           self.thresholds = thresholds
 
@@ -279,21 +280,28 @@ def infer(model, dataloader, device, threshold=0.5, samples_limit=None):
 
       ret_labels += list(labels.data.numpy())
       labels = labels.to(device)
-
       inputs = inputs.to(device)
+      if len(inputs.size()) == 5:
+        # 5d tensor. Then several crops to be evaluated for the same sample
+        bs, ncrops, c, h, w = inputs.size()
+        inputs = inputs.view(-1, c, h, w)
+        multicrop = True
+      else:
+        # Single crop scenario.
+        multicrop = False
 
       with torch.set_grad_enabled(False):
         outputs = model(inputs)
         confidences = torch.sigmoid(outputs)
 
+        if multicrop:
+          confidences = confidences.view(bs, ncrops, -1).mean(1)
+
         ret_confidences += list(confidences.cpu().numpy())
         if isinstance(threshold, np.ndarray):
           threshold = torch.from_numpy(threshold.astype(np.float32)).to(device)
-        vec_preds = np.argwhere(torch.ge(confidences, threshold).type(confidences.type()).cpu().numpy())
-        # See https://stackoverflow.com/a/43094244/3887420
-        # group by [0]
-        np_idx_preds = np.split(vec_preds[:, 1], np.cumsum(np.unique(vec_preds[:, 0], return_counts=True)[1])[:-1])
-        ret_preds += [list(x) for x in np_idx_preds]
+        vec_preds = torch.ge(confidences, threshold).type(confidences.type()).cpu().numpy()
+        ret_preds += vector_to_index_list(vec_preds)
 
         # statistics
         batch_stats = multilabel_stats(labels, confidences, threshold=threshold)

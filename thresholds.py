@@ -106,10 +106,15 @@ def calculate_optimal_thresholds(labels, confidences, slices=1000, old_threshold
       var[:, i] = eval(th)
 
     optimal = (np.argmax(var, axis=1) + (slices - np.argmax(np.flip(var, 1), axis=1))) / (2 * slices)
-    if not old_thresholds:
+    if old_thresholds is None:
       old_thresholds = np.ones(n_classes, dtype=np.float32)/2
 
     print("New optimal thresholds, F1: {:.4f}, with old ones F1: {}".format(
       eval_global(optimal), eval_global(old_thresholds/2)))
+
+    print("Saving labels and confidences for debugging thresholds")
+    np.save("labels", labels)
+    np.save("confidences", confidences)
+
 
     return optimal

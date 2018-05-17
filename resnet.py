@@ -52,7 +52,7 @@ data_dir = 'data'
 image_datasets, dataloaders = {}, {}
 for set in sets:
   folder = os.path.join(data_dir, set)
-  id, dl = get_data_loader(folder, model_type, set, annotations)
+  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=64)
   image_datasets[set] = id
   dataloaders[set] = dl
 
@@ -76,7 +76,7 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 # https://github.com/tensorflow/models/issues/2648#issuecomment-340663699
 # https://github.com/tensorflow/models/blob/master/research/slim/nets/nasnet/nasnet.py
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
-optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0001)
+optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001)
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
@@ -84,7 +84,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("resnet101-bs-64-lr0.001-mom0.9-wd4e-4-pos-weight3-test",
+trainer = Trainer("resnet101-bs-64-lr1e-4-mom0.9-wd4e-4-pos-weight3",
                   model,
                   criterion,
                   optimizer_ft,

@@ -32,11 +32,13 @@ class MultiScaleFiveCrop(object):
       self.size = size
 
   def __call__(self, img):
-    resizes = [F.resize(size) for size in self.resizes]
+    resizes = [F.resize(img, size) for size in self.resizes]
     all_crops = []
     for crop in resizes:
-      all_crops.append(F.five_crop(crop, self.size))
-    return all_crops
+      all_crops += F.five_crop(crop, self.size)
+    # Also including a crop that includes the whole image, even if aspect ratio is not respected.
+    all_crops.append(F.resize(img, self.size))
+    return tuple(all_crops)
 
   def __repr__(self):
     return self.__class__.__name__ + '(size={0},resizes={})'.format(self.size, self.resizes)
