@@ -63,7 +63,6 @@ class Trainer:
     }
     since = time.time()
 
-    best_model_wts = copy.deepcopy(self.model.state_dict())
     best_f1 = 0.0
     self.global_step = 0
     thresholds = self.thresholds
@@ -105,11 +104,10 @@ class Trainer:
         # deep copy the model
         if phase == 'validation' and f1 > best_f1:
           best_f1 = f1
-          # best_model_wts = copy.deepcopy(model.state_dict())
           model_path = os.path.join(self.running_dir, "model_best.pth.tar")
           thresholds_path = model_path + ".thresholds"
           print("Saving model with F1 {} to '{}'".format(best_f1, model_path))
-          torch.save(best_model_wts, model_path)
+          torch.save(model.state_dict(), model_path)
           print("Saving thresholds to '{}'".format(thresholds_path))
           np.save(thresholds_path, thresholds)
 

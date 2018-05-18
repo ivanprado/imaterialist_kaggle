@@ -33,12 +33,17 @@ annotations = load_annotations()
 model_file = "runs/"+ "May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3" + "/model_best.pth.tar" # 0.599
 model_file = "runs/"+ "May16_13-38-21_cs231n-1resnet101-bs-64-lr0.01-mom0.9-wd4e-4-pos-weight3" + "/model_best.pth.tar" # 0.603
 
-#model_file=None
+
 #model_file = "runs/"+ "May15_16-31-15_cs231n-1nasnet-bs-64-clr1e-5-0.1-mom0.9-pos-weight3" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
 #model_file = "runs/"+ "May15_17-20-35_cs231n-1nasnet-bs-64-clr1e-4-0.01-rmsprop0.9-1-pos-weight3-wd4e-5-fromcell17" + "/model_best.pth.tar" # Nasnet finetuning just fc for a little bit
+model_file=None
+#model_file = "runs/"+ "May17_16-04-29_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-just-fc" + "/model_best.pth.tar" # 0.4507739507786539 Sólo la fc entrenada un poquejo. # INVALIDO
+#model_file = "runs/"+ "May17_17-12-16_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-since-block4" + "/model_best.pth.tar" # 0.568 # INVALIDO
 
-model_type = "resnet101"
+
+#model_type = "resnet101"
 #model_type = "nasnetlarge"
+model_type = "xception"
 
 pretrained=False
 if not model_file:
@@ -76,7 +81,8 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 # https://github.com/tensorflow/models/issues/2648#issuecomment-340663699
 # https://github.com/tensorflow/models/blob/master/research/slim/nets/nasnet/nasnet.py
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
-optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001)
+#optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.045, momentum=0.9, weight_decay=1e-5) # xception
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
@@ -84,7 +90,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("resnet101-bs-64-lr1e-4-mom0.9-wd4e-4-pos-weight3",
+trainer = Trainer("xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-just-fc",
                   model,
                   criterion,
                   optimizer_ft,
@@ -94,6 +100,8 @@ trainer = Trainer("resnet101-bs-64-lr1e-4-mom0.9-wd4e-4-pos-weight3",
                   device,
                   samples_limit=25000,
                   validation_samples_limit=5000,
+                  #samples_limit=64,
+                  #validation_samples_limit=64,
                   thresholds=model.thresholds
                   )
 trainer.train_model(1000)
