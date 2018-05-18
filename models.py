@@ -129,6 +129,75 @@ def get_xception_model(model_class, num_classes, model_file=None, pretrained=Fal
 
   return model
 
+def get_xception_model(model_class, num_classes, model_file=None, pretrained=False):
+  model = model_class(num_classes=1000, pretrained='imagenet' if pretrained else False)
+
+  num_ftrs = model.last_linear.in_features
+  model.last_linear = nn.Linear(num_ftrs, num_classes)
+  # Replacing fixed global pooling with adaptive so that variable input image size is allowed
+  # model_ft.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+
+  all_layers = [
+    'conv1',
+    'bn1',
+    'conv2',
+    'bn2',
+    'block1',
+    'block2',
+    'block3',
+    'block4',
+    'block5',
+    'block6',
+    'block7',
+    'block8',
+    'block9',
+    'block10',
+    'block11',
+    'block12',
+    'conv3',
+    'bn3',
+    'conv4',
+    'bn4',
+    'last_linear'
+  ]
+  layers_to_train = [
+    'block3',
+    'block4',
+    'block5',
+    'block6',
+    'block7',
+    'block8',
+    'block9',
+    'block10',
+    'block11',
+    'block12',
+    'conv3',
+    'bn3',
+    'conv4',
+    'bn4',
+    'last_linear'
+  ]
+  #layers_to_train = ['last_linear'] # Just the FC, typically the first stage after pretrained model.
+  parameters_to_train = []
+  for name, parameter in model.named_parameters():
+    if name.split(".")[0] in layers_to_train:
+      parameters_to_train.append(parameter)
+      parameter.requires_grad = True
+    else:
+      parameter.requires_grad = False
+  model.parameters_to_train = parameters_to_train
+
+  if model_file:
+    load_model(model, model_file)
+  else:
+    model.thresholds = 0.5
+
+  # Disabling grads for a test by now
+  #enable_params(model, False)
+  #enable_params(model.last_linear, True)
+
+  return model
+
 def get_model(model_name, *kargs, **kwargs):
   model_conf = models[model_name]
   model = model_conf['model_builder'](model_conf['model_class'], *kargs, **kwargs)

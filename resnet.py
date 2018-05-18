@@ -40,6 +40,7 @@ model_file=None
 #model_file = "runs/"+ "May17_16-04-29_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-just-fc" + "/model_best.pth.tar" # 0.4507739507786539 Sólo la fc entrenada un poquejo. # INVALIDO
 #model_file = "runs/"+ "May17_17-12-16_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-since-block4" + "/model_best.pth.tar" # 0.568 # INVALIDO
 model_file = "runs/"+ "May18_07-37-59_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-just-fc" + "/model_best.pth.tar" # 0.45
+model_file = "runs/"+ "May18_08-53-22_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-from-block3" + "/model_best.pth.tar" # 0.5654
 
 
 #model_type = "resnet101"
@@ -83,7 +84,7 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 # https://github.com/tensorflow/models/blob/master/research/slim/nets/nasnet/nasnet.py
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.045, momentum=0.9, weight_decay=1e-5) # xception
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.0045, momentum=0.9, weight_decay=1e-5) # xception
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
@@ -91,7 +92,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-from-block3",
+trainer = Trainer("xception-bs-64-lr0.0045-mom0.9-wd1e-5-pos-weight3-from-block3",
                   model,
                   criterion,
                   optimizer_ft,
@@ -117,4 +118,21 @@ trainer.train_model(1000)
 # TODO: [ ] grad norm https://pytorch.org/docs/stable/nn.html?highlight=clip_grad_norm#torch.nn.utils.clip_grad_norm_
 
 # TODO: Maybe REGULARIZING NEURAL NETWORKS BY PENALIZING CONFIDENT OUTPUT DISTRIBUTIONS instead of label smoothing?
+# TODO: class aware sampling:
+# http://www.cis.pku.edu.cn/faculty/vision/zlin/Publications/2016-ECCV-RelayBP.pdf
+# To address this issue, we apply a sampling strategy, named “class-aware
+# sampling”, during training. We aim to fill a mini-batch as uniform as possible
+# with respect to classes, and prevent the same example and class from always
+# appearing in a permanent order. In practice, we use two types of lists, one is
+# class list, and the other is per-class image list, i.e., 401 per-class image lists in
+# total. When getting a training mini-batch in an iteration, we first sample a class
+# X in the class list, then sample an image in the per-class image list of class X.
+# When reaching the end of the per-class image list of class X, a shuffle operation
+# is performed to reorder the images of class X. When reaching the end of class list,
+# a shuffle operation is performed to reorder the classes. We leverage such a classaware
+# sampling strategy to effectively tackle the non-uniform class distribution,
+# and the gain of accuracy on the validation set is about 0.6%
+# TODO: freeze bn parameters for the few iterations. From SENet paper:
+# The parameters of all BN layers were frozen for the last few training
+# epochs to ensure consistency between training and testing. (g)
 
