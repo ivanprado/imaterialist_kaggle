@@ -91,7 +91,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 3, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-from-block3",
+trainer = Trainer("xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-from-block4",
                   model,
                   criterion,
                   optimizer_ft,
