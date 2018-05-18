@@ -92,6 +92,7 @@ def get_xception_model(model_class, num_classes, model_file=None, pretrained=Fal
     'last_linear'
   ]
   layers_to_train = [
+    'block3',
     'block4',
     'block5',
     'block6',
@@ -107,6 +108,7 @@ def get_xception_model(model_class, num_classes, model_file=None, pretrained=Fal
     'bn4',
     'last_linear'
   ]
+  #layers_to_train = ['last_linear'] # Just the FC, typically the first stage after pretrained model.
   parameters_to_train = []
   for name, parameter in model.named_parameters():
     if name.split(".")[0] in layers_to_train:
