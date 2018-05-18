@@ -92,6 +92,7 @@ def get_xception_model(model_class, num_classes, model_file=None, pretrained=Fal
     'last_linear'
   ]
   layers_to_train = [
+    'block3',
     'block4',
     'block5',
     'block6',
