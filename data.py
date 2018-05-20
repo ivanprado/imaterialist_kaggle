@@ -9,6 +9,7 @@ from torchvision.datasets.folder import default_loader, has_file_allowed_extensi
 import numpy as np
 from torchvision.transforms import ToTensor, Normalize, Lambda
 
+import cutout
 import models
 from transformations import MultiScaleFiveCrop
 
@@ -227,7 +228,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
     transforms.Normalize(*img_stats)
   ])
   dt_test_multiscale_five = transforms.Compose([
-    MultiScaleFiveCrop(img_size),
+    MultiScaleFiveCrop(img_size, resizes=[img_size, img_size+32, img_size+64, img_size+96]),
     Lambda(lambda crops: torch.stack([Normalize(*img_stats)(ToTensor()(crop)) for crop in crops]))
   ])
   if tta:
@@ -235,7 +236,8 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
     dt_test = dt_test_multiscale_five
   data_transforms = {
     'train': transforms.Compose([
-      transforms.RandomResizedCrop(img_size),
+      transforms.RandomResizedCrop(img_size, scale=(0.4, 1)),
+      cutout.Cutout(img_size // 4),
       transforms.RandomHorizontalFlip(),
       transforms.ToTensor(),
       transforms.Normalize(*img_stats)

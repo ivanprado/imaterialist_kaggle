@@ -41,6 +41,9 @@ model_file=None
 #model_file = "runs/"+ "May17_17-12-16_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-since-block4" + "/model_best.pth.tar" # 0.568 # INVALIDO
 model_file = "runs/"+ "May18_07-37-59_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-just-fc" + "/model_best.pth.tar" # 0.45
 model_file = "runs/"+ "May18_08-53-22_cs231n-1xception-bs-64-lr0.045-mom0.9-wd1e-5-pos-weight3-from-block3" + "/model_best.pth.tar" # 0.5654
+model_file = "runs/"+ "May18_20-13-42_cs231n-1xception-bs-64-lr0.0045-mom0.9-wd1e-5-pos-weight3-from-block3" + "/model_best.pth.tar" # 0.5688
+model_file = "runs/"+ "May19_05-43-08_cs231n-1xception-bs-32-lr0.1-mom0.9-wd1e-5-pos-weight3" + "/model_best.pth.tar" # 0.5991
+model_file = "runs/"+ "May20_08-35-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3" + "/model_best.pth.tar" # 0.6036
 
 
 #model_type = "resnet101"
@@ -59,7 +62,7 @@ data_dir = 'data'
 image_datasets, dataloaders = {}, {}
 for set in sets:
   folder = os.path.join(data_dir, set)
-  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=64)
+  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=32)
   image_datasets[set] = id
   dataloaders[set] = dl
 
@@ -84,15 +87,15 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 # https://github.com/tensorflow/models/blob/master/research/slim/nets/nasnet/nasnet.py
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.0045, momentum=0.9, weight_decay=1e-5) # xception
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.01, momentum=0.9, weight_decay=1e-5) # xception
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
-lr_f = lambda x: sawtooth(0.01, 1, 3, x)
-exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
+lr_f = lambda x: sawtooth(0.01, 1, 2, x)
+exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)#lambda x: 1)
 
-trainer = Trainer("xception-bs-64-lr0.0045-mom0.9-wd1e-5-pos-weight3-from-block3",
+trainer = Trainer("xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4",
                   model,
                   criterion,
                   optimizer_ft,

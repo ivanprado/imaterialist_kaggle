@@ -178,14 +178,16 @@ def get_xception_model(model_class, num_classes, model_file=None, pretrained=Fal
     'last_linear'
   ]
   #layers_to_train = ['last_linear'] # Just the FC, typically the first stage after pretrained model.
-  parameters_to_train = []
-  for name, parameter in model.named_parameters():
-    if name.split(".")[0] in layers_to_train:
-      parameters_to_train.append(parameter)
-      parameter.requires_grad = True
-    else:
-      parameter.requires_grad = False
-  model.parameters_to_train = parameters_to_train
+  #parameters_to_train = []
+  #for name, parameter in model.named_parameters():
+  #  if name.split(".")[0] in layers_to_train:
+  #    parameters_to_train.append(parameter)
+  #    parameter.requires_grad = True
+  #  else:
+  #    parameter.requires_grad = False
+  #model.parameters_to_train = parameters_to_train
+  # Training everything
+  model.parameters_to_train = model.parameters()
 
   if model_file:
     load_model(model, model_file)
