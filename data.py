@@ -242,6 +242,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
       transforms.Normalize(*img_stats),
       cutout.Cutout(1, img_size // 4),
     ]),
+    #'train': dt_test,
     'validation': dt_test,
     'test': dt_test
   }

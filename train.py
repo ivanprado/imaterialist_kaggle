@@ -85,13 +85,13 @@ class Trainer:
 
           loss, labels, confidences = self._train_epoch()
 
-          thresholds = calculate_optimal_thresholds_one_by_one(labels, confidences, slices=250,
-                              old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
-          self.thresholds = thresholds
-
         else:
           image_ids, labels, preds, confidences, global_scores, per_class_scores = \
             infer(model, dataloaders[phase], self.device, samples_limit=self.validation_samples_limit)
+
+          thresholds = calculate_optimal_thresholds_one_by_one(labels, confidences, slices=250,
+                              old_thresholds=(thresholds if isinstance(thresholds, np.ndarray) else None))
+          self.thresholds = thresholds
 
         f1, precision, recall = \
           f1_score(*reduce_stats(
@@ -101,7 +101,7 @@ class Trainer:
         print('{} loss: {:.4f} F1: {:.4f}, precision: {:.4f}, recall: {:.4f}'.format(
           phase, loss, f1, precision, recall))
 
-        # deep copy the model
+        # Saving best model.
         if phase == 'validation' and f1 > best_f1:
           best_f1 = f1
           model_path = os.path.join(self.running_dir, "model_best.pth.tar")
