@@ -96,7 +96,7 @@ optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.1, momentum=0.9, weight
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 2, x)
-exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)#lambda x: 1)
+exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
 trainer = Trainer("sexception-bs-32-clr0.1-0.01-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4",
                   model,
