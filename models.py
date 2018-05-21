@@ -211,16 +211,16 @@ def get_sexception_model(model_class, num_classes, model_file=None, pretrained=F
   # model_ft.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
   # Just train the SE modules... to initialize to correct values.
-  parameters_to_train = []
-  for name, parameter in model.named_parameters():
-    if "se_module" in name:
-      parameters_to_train.append(parameter)
-      parameter.requires_grad = True
-    else:
-      parameter.requires_grad = False
-  model.parameters_to_train = parameters_to_train
+  # parameters_to_train = []
+  # for name, parameter in model.named_parameters():
+  #   if "se_module" in name:
+  #     parameters_to_train.append(parameter)
+  #     parameter.requires_grad = True
+  #   else:
+  #     parameter.requires_grad = False
+  # model.parameters_to_train = parameters_to_train
   # Training everything
-  # model.parameters_to_train = model.parameters()
+  model.parameters_to_train = model.parameters()
 
   if model_file:
     load_model(model, model_file, strict=False)
