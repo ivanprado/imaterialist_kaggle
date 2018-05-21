@@ -46,6 +46,7 @@ model_file = "runs/"+ "May19_05-43-08_cs231n-1xception-bs-32-lr0.1-mom0.9-wd1e-5
 model_file = "runs/"+ "May20_08-35-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3" + "/model_best.pth.tar" # 0.6036
 model_file = "runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar" # 0.6038
 model_file = "runs/"+ "May21_14-13-52_cs231n-1sexception-bs-32-clr0.1-0.01-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-just-se-modules" + "/model_best.pth.tar" # 0.6452
+model_file = "runs/"+ "May21_15-14-40_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar" # 0.6496
 
 
 #model_type = "resnet101"
@@ -98,7 +99,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.01, 1, 2, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4",
+trainer = Trainer("sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15",
                   model,
                   criterion,
                   optimizer_ft,
