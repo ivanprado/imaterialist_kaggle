@@ -278,3 +278,10 @@ models = {
   }
 
 }
+
+
+def model_type_from_model_file(model_file):
+  for model_type in models.keys():
+    if "1" + model_type in model_file:
+      return model_type
+  return None

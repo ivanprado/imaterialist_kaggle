@@ -1,7 +1,6 @@
 import time
 from collections import OrderedDict
 
-import copy
 import numpy as np
 import os
 import torch
@@ -10,10 +9,9 @@ from torch.optim import lr_scheduler
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
+from infer import infer
 from measures import multilabel_stats, reduce_stats, f1_score
-from thresholds import calculate_optimal_thresholds_by_brackets, calculate_optimal_thresholds, \
-  calculate_optimal_thresholds_one_by_one
-from utils import vector_to_index_list
+from thresholds import calculate_optimal_thresholds_one_by_one
 
 
 class Trainer:
@@ -254,64 +252,6 @@ class BoardCapturer:
   def lr_vs_loss(self):
     return self.a_vs_b('epoch/optimizer/lr', 'epoch/loss/train')
 
-
-def infer(model, dataloader, device, threshold=0.5, samples_limit=None):
-  running_stats = (0., 0., 0.)
-
-  ret_labels = []
-  ret_image_ids = []
-  ret_preds = []
-  ret_confidences = []
-  # Iterate over data.
-  samples = 0
-
-  dataloader_size = len(dataloader) * dataloader.batch_size
-  estimated_size = min(samples_limit, dataloader_size) if samples_limit else dataloader_size
-  with tqdm(total=estimated_size) as progress_bar:
-    for inputs, labels, img_ids in dataloader:
-      batch_size = inputs.size()[0]
-      samples += batch_size
-      model.eval()  # Set model to evaluate mode
-
-      ret_image_ids += list(img_ids.data.numpy())
-
-      ret_labels += list(labels.data.numpy())
-      labels = labels.to(device)
-      inputs = inputs.to(device)
-      if len(inputs.size()) == 5:
-        # 5d tensor. Then several crops to be evaluated for the same sample
-        bs, ncrops, c, h, w = inputs.size()
-        inputs = inputs.view(-1, c, h, w)
-        multicrop = True
-      else:
-        # Single crop scenario.
-        multicrop = False
-
-      with torch.set_grad_enabled(False):
-        outputs = model(inputs)
-        confidences = torch.sigmoid(outputs)
-
-        if multicrop:
-          confidences = confidences.view(bs, ncrops, -1).mean(1)
-
-        ret_confidences += list(confidences.cpu().numpy())
-        if isinstance(threshold, np.ndarray):
-          threshold = torch.from_numpy(threshold.astype(np.float32)).to(device)
-        vec_preds = torch.ge(confidences, threshold).type(confidences.type()).cpu().numpy()
-        ret_preds += vector_to_index_list(vec_preds)
-
-        # statistics
-        batch_stats = multilabel_stats(labels, confidences, threshold=threshold)
-        running_stats = tuple([np.add(a, b) for a, b in zip(running_stats, batch_stats)])
-
-      progress_bar.update(batch_size)
-      if samples_limit and samples >= samples_limit:
-        break
-
-  per_class_scores = f1_score(*running_stats)
-  global_scores = f1_score(*reduce_stats(*running_stats))
-
-  return ret_image_ids, ret_labels, ret_preds, ret_confidences, global_scores, per_class_scores
 
 def sawtooth(min, max, step_size, epoch):
   '''

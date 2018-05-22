@@ -49,6 +49,7 @@ model_file = "runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.
 #model_file = "runs/"+ "May21_15-14-40_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar" # 0.6496
 #model_file = "runs/"+ "May21_17-04-17_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6541
 #model_file = "runs/"+ "May21_22-09-11_cs231n-1sexception-bs-38-clr0.001-0.01-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6539
+model_file = "runs/"+ "runs/May22_07-17-10_cs231n-1xception-bs-32-lr0.5-mom0.5-wd1e-5-cutout4-minscale0.4-rota15/model_best.pth.tar" + "/model_best.pth.tar" # 0.6491, PW1!
 
 #model_type = "resnet101"
 #model_type = "nasnetlarge"

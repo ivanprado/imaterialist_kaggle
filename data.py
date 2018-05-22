@@ -97,14 +97,15 @@ class Imaterialist(Dataset):
       counts += target > 0.5
     return counts / float(len(self.samples))
 
-  def save_kaggle_submision(self, file, img_ids, preds):
-    with open(file, "w") as f:
-      f.write("image_id,label_id\n")
-      assert len(img_ids) == len(preds), "Preds and ids not the same size preds: {}, img_ids{}!!".format(len(preds), len(img_ids))
-      for id, pred in zip(img_ids, preds):
-        cpreds = [self.idx_to_classes[cidx] for cidx in pred]
-        f.write("{},{}\n".format(id, " ".join(cpreds)))
-    print("Kaggle submision file '{}' written".format(file))
+def save_kaggle_submision(file, img_ids, preds, classes):
+  idx_to_classes = {i: c for i, c in enumerate(classes)}
+  with open(file, "w") as f:
+    f.write("image_id,label_id\n")
+    assert len(img_ids) == len(preds), "Preds and ids not the same size preds: {}, img_ids{}!!".format(len(preds), len(img_ids))
+    for id, pred in zip(img_ids, preds):
+      cpreds = [idx_to_classes[cidx] for cidx in pred]
+      f.write("{},{}\n".format(id, " ".join(cpreds)))
+  print("Kaggle submision file '{}' written".format(file))
 
 
 def generate_annotations():
@@ -215,7 +216,7 @@ class ChunkSampler(sampler.Sampler):
   def __len__(self):
     return self.num_samples
 
-def get_data_loader(path, model_type, type='validation', annotations=None, batch_size=64, tta=False):
+def get_data_loader(path, model_type, type='validation', annotations=None, batch_size=64, tta=False, use_test_transforms=False):
   model_cfg = models.models[model_type]
   img_size = model_cfg['input_size']
   img_stats = model_cfg['mean'], model_cfg['std']
@@ -250,9 +251,10 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
 
   if not annotations:
     annotations = load_annotations()
-  image_dataset = Imaterialist(path, annotations[type], data_transforms[type], read_labels=type in ['train', 'validation'])
+  image_dataset = Imaterialist(path, annotations[type], data_transforms[type if not use_test_transforms else 'test'],
+                               read_labels=type in ['train', 'validation'])
   dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
-                                               shuffle=True, num_workers=7)
+                                               shuffle=(not use_test_transforms and type=='train'), num_workers=7)
 
   return image_dataset, dataloader
 
