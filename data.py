@@ -11,6 +11,7 @@ from torchvision.transforms import ToTensor, Normalize, Lambda
 
 import cutout
 import models
+from pytorch_patches import ClassAwareSampler
 from transformations import MultiScaleFiveCrop
 
 
@@ -253,8 +254,14 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
     annotations = load_annotations()
   image_dataset = Imaterialist(path, annotations[type], data_transforms[type if not use_test_transforms else 'test'],
                                read_labels=type in ['train', 'validation'])
-  dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
-                                               shuffle=(not use_test_transforms and type=='train'), num_workers=7)
+  if type == 'train' and not use_test_transforms:
+    # Training case
+    dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
+                                               sampler=ClassAwareSampler(image_dataset), num_workers=7)
+  else:
+    dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
+                                               shuffle=False, num_workers=7)
+
 
   return image_dataset, dataloader
 
