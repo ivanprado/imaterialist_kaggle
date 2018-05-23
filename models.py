@@ -235,7 +235,7 @@ def get_sexception_model(model_class, num_classes, model_file=None, pretrained=F
 
 
 def get_se_resnext50_32x4d_model(model_class, num_classes, model_file=None, pretrained=False):
-  model = model_class(num_classes=1000, pretrained='imagenet' if pretrained else False)
+  model = model_class(num_classes=1000, pretrained='imagenet' if pretrained else None)
 
   num_ftrs = model.last_linear.in_features
   model.last_linear = nn.Linear(num_ftrs, num_classes)
