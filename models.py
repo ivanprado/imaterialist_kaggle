@@ -234,6 +234,21 @@ def get_sexception_model(model_class, num_classes, model_file=None, pretrained=F
   return model
 
 
+def get_se_resnext50_32x4d_model(model_class, num_classes, model_file=None, pretrained=False):
+  model = model_class(num_classes=1000, pretrained='imagenet' if pretrained else False)
+
+  num_ftrs = model.last_linear.in_features
+  model.last_linear = nn.Linear(num_ftrs, num_classes)
+  model.parameters_to_train = model.parameters()
+
+  if model_file:
+    load_model(model, model_file, strict=False)
+  else:
+    model.thresholds = 0.5
+
+  return model
+
+
 def get_model(model_name, *kargs, **kwargs):
   model_conf = models[model_name]
   model = model_conf['model_builder'](model_conf['model_class'], *kargs, **kwargs)
@@ -275,7 +290,14 @@ models = {
     'mean': [0.5, 0.5, 0.5],
     'std': [0.5, 0.5, 0.5],
     #'scale': 0.8975 # The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
-  }
+  },'se_resnext50_32x4d': {
+    'model_class': pretrainedmodels.se_resnext50_32x4d,
+    'model_builder': get_se_resnext50_32x4d_model,
+    'input_size': [3, 224, 224],
+    'input_range': [0, 1],
+    'mean': [0.485, 0.456, 0.406],
+    'std': [0.229, 0.224, 0.225],
+    }
 
 }
 
