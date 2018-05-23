@@ -3,7 +3,7 @@ import os
 import torch
 from tqdm import tqdm
 
-from data import get_data_loader, load_annotations, save_kaggle_submision
+from data import get_data_loader, save_kaggle_submision
 from measures import f1_score, reduce_stats, multilabel_stats
 from models import model_type_from_model_file, get_model
 from thresholds import calculate_optimal_thresholds_one_by_one
@@ -122,84 +122,5 @@ def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batc
 
   if set_type == 'test':
     save_kaggle_submision("kaggle_submision.csv", image_ids, preds, image_dataset.classes)
-
-
-class Ensemble:
-
-  def __init__(self, model_files, set_type, set_type_for_thresholds='validation', tta=False):
-    self.model_files = model_files
-    self.set_type = set_type
-    self.set_type_for_thresholds = set_type_for_thresholds
-    self.tta = tta
-    self.set_data = self.load(set_type)
-    self.thresholds_data = self.set_data if set_type == set_type_for_thresholds else self.load(set_type_for_thresholds)
-
-  def load(self, set_type):
-    '''
-    :return: the tuple of numpy arrays (image_ids, labels, confidences, thresholds) of size N, N X L, M x N x L, M x L
-    '''
-    tta = self.tta
-
-    as_np = lambda x: (np.array(x['image_ids'], dtype=int), np.array(x['labels'], dtype=np.float32), np.array(x['confidences'], dtype=np.float32),
-                       x['thresholds'])
-
-    g_img_ids, g_y, ps, gt = None, None, [], []
-    for i, model_file in enumerate(self.model_files):
-      base_path = os.path.dirname(model_file)
-      data_for_inference = os.path.join(base_path,
-                                        "inference_{}_{}.th".format(set_type, "tta" if tta else "no_tta"))
-
-      l_img_ids, l_y, l_p, l_t = as_np(torch.load(data_for_inference))
-      sorting = np.argsort(l_img_ids)
-      if g_img_ids is None:
-        g_img_ids = l_img_ids[sorting]
-        g_y = l_y[sorting]
-      else:
-        assert np.allclose(l_img_ids[sorting], g_img_ids), "Image id lists not equal for all datasets."
-        assert np.allclose(l_y[sorting], g_y), "Label list not equal for all datasets."
-
-      ps.append(l_p[sorting, :])
-      gt.append(l_t)
-
-    np_ps, np_gt = np.array(ps), np.array(gt)
-    assert np_ps.shape == (len(self.model_files), g_y.shape[0], g_y.shape[1])
-    assert np_gt.shape == (len(self.model_files), g_y.shape[1])
-
-    return g_img_ids, g_y, np_ps, np_gt
-
-
-class MeanEnsemble(Ensemble):
-
-  def __init__(self, model_files, set_type, set_type_for_thresholds='validation', tta=False):
-    super().__init__(model_files, set_type, set_type_for_thresholds, tta)
-    self.thresholds = None
-
-  def _combine(self, confidences):
-    return confidences.mean(axis=0)
-
-  def _calculate_thresholds(self):
-    _, labels, confidences, _ = self.thresholds_data
-    ensembled_confidences = self._combine(confidences)
-    self.thresholds = calculate_optimal_thresholds_one_by_one(labels, ensembled_confidences, slices=250)
-
-  def infer(self):
-    self._calculate_thresholds()
-    img_ids, labels, confidences, _ = self.set_data
-    fused_confidences = self._combine(confidences)
-    vec_preds = fused_confidences > self.thresholds
-    preds = vector_to_index_list(vec_preds)
-
-    if self.set_type == 'test':
-      global_scores = None
-      annotations = load_annotations()
-      classes = annotations['train']['classes']
-      save_kaggle_submision("ensemble_kaggle_submision.csv", img_ids, preds, classes)
-    else:
-      global_scores = f1_score(
-        *reduce_stats(*multilabel_stats(labels, fused_confidences, self.thresholds)))
-      print("Ensemble results for {}. F1: {:.4}, precision: {:.4}, recall: {:.4}".format(self.set_type, *global_scores))
-
-    return img_ids, labels, preds, confidences, global_scores
-
 
 

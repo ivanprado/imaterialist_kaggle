@@ -50,6 +50,14 @@ def multilabel_stats_np(y_true, confidences, threshold=0.5):
   false_negatives = (y_true  * (1 - y_pred)).sum(0)
   return np.array([true_positives, false_positive, false_negatives])
 
+
+def multilabel_stats_from_pred(y_true, y_pred):
+  true_positives = (y_true * y_pred).sum(0)
+  false_positive = ((1-y_true) * y_pred).sum(0)
+  false_negatives = (y_true  * (1 - y_pred)).sum(0)
+  return np.array([true_positives, false_positive, false_negatives])
+
+
 def f1_score_np(stats):
   true_positives, false_positives, false_negatives = stats[0], stats[1], stats[2]
   avoiding_div_by_zero = true_positives == 0
