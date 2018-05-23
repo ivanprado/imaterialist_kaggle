@@ -70,7 +70,7 @@ data_dir = 'data'
 image_datasets, dataloaders = {}, {}
 for set in sets:
   folder = os.path.join(data_dir, set)
-  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=32)
+  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=64)
   image_datasets[set] = id
   dataloaders[set] = dl
 
@@ -104,7 +104,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.1, 1, 2, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("se_resnext50_32x4d-bs-32-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas",
+trainer = Trainer("se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas",
                   model,
                   criterion,
                   optimizer_ft,
@@ -112,10 +112,10 @@ trainer = Trainer("se_resnext50_32x4d-bs-32-lr0.6-mom0.9-wd1e-5-cutout4-minscale
                   dataloaders['train'],
                   dataloaders['validation'],
                   device,
-                  #samples_limit=25000,
-                  #validation_samples_limit=5000,
-                  samples_limit=64,
-                  validation_samples_limit=64,
+                  samples_limit=25000,
+                  validation_samples_limit=5000,
+                  #samples_limit=64,
+                  #validation_samples_limit=64,
                   thresholds=model.thresholds
                   )
 trainer.train_model(1000)

@@ -293,12 +293,11 @@ models = {
   },'se_resnext50_32x4d': {
     'model_class': pretrainedmodels.se_resnext50_32x4d,
     'model_builder': get_se_resnext50_32x4d_model,
-    'input_size': [3, 224, 224],
+    'input_size': 224,
     'input_range': [0, 1],
     'mean': [0.485, 0.456, 0.406],
     'std': [0.229, 0.224, 0.225],
     }
-
 }
 
 
