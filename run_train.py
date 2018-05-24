@@ -55,6 +55,8 @@ model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom
 model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
 model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
 model_file = "runs/"+ "May24_10-35-14_cs231n-1se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6483, PW1
+model_file = "runs/"+ "May24_13-04-17_cs231n-1se_resnext50_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6525, PW1
+
 
 #model_type = "resnet101"
 #model_type = "nasnetlarge"
@@ -100,7 +102,7 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
 #optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.5, momentum=0.5, weight_decay=1e-5) # xception
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.06, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.006, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
@@ -108,7 +110,7 @@ lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.1, 1, 2, x)
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
 
-trainer = Trainer("se_resnext50_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1",
+trainer = Trainer("se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1",
                   model,
                   criterion,
                   optimizer_ft,
