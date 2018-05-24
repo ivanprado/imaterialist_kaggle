@@ -12,7 +12,7 @@ from torchvision.transforms import ToTensor, Normalize, Lambda
 import cutout
 import models
 from pytorch_patches import ClassAwareSampler
-from transformations import MultiScaleFiveCrop
+from transformations import MultiScaleMultiplesCrops
 
 
 def make_dataset(dir, class_to_idx, img_to_classes, read_labels):
@@ -230,7 +230,8 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
     transforms.Normalize(*img_stats)
   ])
   dt_test_multiscale_five = transforms.Compose([
-    MultiScaleFiveCrop(img_size, resizes=[img_size, img_size+32, img_size+64, img_size+96]),
+    #MultiScaleFiveCrop(img_size, resizes=[img_size, img_size+32, img_size+64, img_size+96]),
+    MultiScaleMultiplesCrops(img_size, resizes=[img_size + 32, img_size + 64]),
     Lambda(lambda crops: torch.stack([Normalize(*img_stats)(ToTensor()(crop)) for crop in crops]))
   ])
   if tta:

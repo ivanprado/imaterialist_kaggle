@@ -67,7 +67,7 @@ def infer(model, dataloader, device, threshold=0.5, samples_limit=None):
 
   return ret_image_ids, ret_labels, ret_preds, ret_confidences, global_scores, per_class_scores
 
-def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batch_size=64):
+def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batch_size=64, write=True):
   set_type = img_set_folder.split("/")[-1]
   model_type = model_type_from_model_file(model_file)
   image_dataset, dataloader = get_data_loader(img_set_folder, model_type, set_type, batch_size=batch_size, tta=tta,
@@ -93,8 +93,9 @@ def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batc
     vec_preds = np.array(confidences) > model.thresholds # updating prediction with new thresholds.
     preds = vector_to_index_list(vec_preds)
     global_scores = f1_score(*reduce_stats(*multilabel_stats(np.array(labels), np.array(confidences), model.thresholds)))
-    np.save("thresholds", model.thresholds)
-    np.save(model_file + ".thresholds", model.thresholds)
+    if write:
+      np.save("thresholds", model.thresholds)
+      np.save(model_file + ".thresholds", model.thresholds)
 
   #if set_type in ['train', 'validation']:
   #  print("Global results for {}. F1: {:.3}, precision: {:.3}, recall: {:.3}".format(set_type, *global_scores))
@@ -102,7 +103,9 @@ def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batc
   #             np.array([image_dataset.class_frequency()] + list(per_class_scores)).T,
   #             header="original_frequency, f1, precision, recall", delimiter=",")
 
-  if (samples_limit is None and set_type in ['validation', 'test']) or (samples_limit > 25000 and set_type == 'train'):
+  if write and \
+          ((samples_limit is None and set_type in ['validation', 'test']) or
+           (samples_limit > 25000 and set_type == 'train')):
     # Saving results just for full sets inference
     # They can be used for ensembling
     base_path = os.path.dirname(model_file)
@@ -120,7 +123,7 @@ def infer_runner(img_set_folder, model_file, samples_limit=None, tta=False, batc
     with open(performance_file, "w") as f:
       f.write("{:.4}\n".format(global_scores[0]))
 
-  if set_type == 'test':
+  if write and set_type == 'test':
     save_kaggle_submision("kaggle_submision.csv", image_ids, preds, image_dataset.classes)
 
 

@@ -1,18 +1,15 @@
 import numbers
 
 import torchvision.transforms.functional as F
+from random import random
 
 
-class MultiScaleFiveCrop(object):
+class MultiScaleMultiplesCrops(object):
   """
-  Resizes the images to 256, 288, 320 and 352.
-  Then take the five Crop as in FiveCrop transformation for each of them.
-  In total, 4 * 5 = 20 crops per image.
-  Crop the given PIL Image into four corners and the central crop
 
   Example:
        >>> transform = Compose([
-       >>>    MultiScaleFiveCrop(size), # this is a list of PIL Images
+       >>>    MultiScaleMultiplesCrops(size), # this is a list of PIL Images
        >>>    Lambda(lambda crops: torch.stack([ToTensor()(crop) for crop in crops])) # returns a 4D tensor
        >>> ])
        >>> #In your test loop you can do the following:
@@ -38,6 +35,9 @@ class MultiScaleFiveCrop(object):
       all_crops += F.five_crop(crop, self.size)
     # Also including a crop that includes the whole image, even if aspect ratio is not respected.
     all_crops.append(F.resize(img, self.size))
+    for i, crop in enumerate(all_crops):
+      if random() > 0.5:
+        all_crops[i] = F.hflip(crop)
     return tuple(all_crops)
 
   def __repr__(self):

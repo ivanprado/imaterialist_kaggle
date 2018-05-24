@@ -53,6 +53,7 @@ model_file = "runs/"+ "May22_07-17-10_cs231n-1xception-bs-32-lr0.5-mom0.5-wd1e-5
 model_file = None
 model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6345, PW1!
 model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
+model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
 
 
 #model_type = "resnet101"
@@ -88,7 +89,7 @@ num_classes = len(class_names)
 pos_weight=None
 # Using BCEWithLogitsLoss because it seems to have better numerical stability than
 # using MultiLabelSoftMarginLoss or combining a sigmoid con BCELoss
-criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoothing=0)
+criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoothing=0.1)
 
 # Observe that all parameters are being optimized
 #optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
@@ -99,15 +100,15 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
 #optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.5, momentum=0.5, weight_decay=1e-5) # xception
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.0006, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.6, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
-lr_f = lambda x: sawtooth(0.01, 0.1, 2, x)
-exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
+lr_f = lambda x: sawtooth(0.1, 1, 2, x)
+exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)#lambda x: 1)
 
-trainer = Trainer("se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas",
+trainer = Trainer("se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1",
                   model,
                   criterion,
                   optimizer_ft,
@@ -133,7 +134,7 @@ trainer.train_model(1000)
 # TODO: [ ] grad norm https://pytorch.org/docs/stable/nn.html?highlight=clip_grad_norm#torch.nn.utils.clip_grad_norm_
 
 # TODO: Maybe REGULARIZING NEURAL NETWORKS BY PENALIZING CONFIDENT OUTPUT DISTRIBUTIONS instead of label smoothing?
-# TODO: class aware sampling:
+# TODO: [X] class aware sampling:
 # http://www.cis.pku.edu.cn/faculty/vision/zlin/Publications/2016-ECCV-RelayBP.pdf
 # To address this issue, we apply a sampling strategy, named “class-aware
 # sampling”, during training. We aim to fill a mini-batch as uniform as possible
@@ -147,6 +148,7 @@ trainer.train_model(1000)
 # a shuffle operation is performed to reorder the classes. We leverage such a classaware
 # sampling strategy to effectively tackle the non-uniform class distribution,
 # and the gain of accuracy on the validation set is about 0.6%
+
 # TODO: freeze bn parameters for the few iterations. From SENet paper:
 # The parameters of all BN layers were frozen for the last few training
 # epochs to ensure consistency between training and testing. (g)
