@@ -54,7 +54,7 @@ model_file = None
 model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6345, PW1!
 model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
 model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
-
+model_file = "runs/"+ "May24_10-35-14_cs231n-1se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6483, PW1
 
 #model_type = "resnet101"
 #model_type = "nasnetlarge"
