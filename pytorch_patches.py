@@ -179,10 +179,14 @@ class ClassAwareSampler(Sampler):
   multiplied by num of classes such that all samples can be sampled.
   """
 
-  def __init__(self, data_source, num_samples=0):
+  def __init__(self, data_source, num_samples=0, sample_over_classes=None):
     self.data_source = data_source
     n_cls = len(data_source.classes)
-    self.class_iter = RandomCycleIter(range(n_cls))
+    if sample_over_classes is None:
+      iter_over = RandomCycleIter(range(n_cls))
+    else:
+      iter_over = sample_over_classes
+    self.class_iter = RandomCycleIter(iter_over)
     cls_data_list = [list() for _ in range(n_cls)]
     for i, (path, target, img_id) in enumerate(data_source.samples):
       for class_id in np.where(target > 0.5)[0]:

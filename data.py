@@ -3,7 +3,7 @@ import os
 
 import torch
 from matplotlib import pyplot as plt
-from torch.utils.data import Dataset, sampler
+from torch.utils.data import Dataset, sampler, ConcatDataset
 from torchvision import transforms
 from torchvision.datasets.folder import default_loader, has_file_allowed_extension
 import numpy as np
@@ -97,6 +97,23 @@ class Imaterialist(Dataset):
     for path, target, _ in self.samples:
       counts += target > 0.5
     return counts / float(len(self.samples))
+
+
+def class_frequency(set_type, annotations):
+  classes = annotations[set_type]['classes']
+  classes_to_idx = {c: i for i, c in enumerate(classes)}
+
+  labels = []
+  for img_id, img_classes in annotations[set_type]['annotations'].items():
+    target = np.zeros(len(classes_to_idx), dtype=np.float32)
+    idx_with_class = [classes_to_idx[c] for c in img_classes]
+    target[idx_with_class] = 1
+    labels.append(target)
+
+  labels_matrix = np.array(labels)
+  freq = labels_matrix.sum(axis=0) / labels_matrix.shape[0]
+  return freq
+
 
 def save_kaggle_submision(file, img_ids, preds, classes):
   idx_to_classes = {i: c for i, c in enumerate(classes)}
@@ -257,8 +274,18 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
                                read_labels=type in ['train', 'validation'])
   if type == 'train' and not use_test_transforms:
     # Training case
+
+    # Focus on most frequent labels on test set
+    class_freq_on_test = np.load("freq-test.npy")
+    most_frequent_idx = np.argsort(class_freq_on_test)[-50:]
+    image_dataset_val = Imaterialist("data/validation", annotations['validation'], data_transforms['train'],
+                                 read_labels=True)
+
+    # Use validation and train set for training.
+    image_dataset = ConcatDataset([image_dataset, image_dataset_val])
+
     dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
-                                               sampler=ClassAwareSampler(image_dataset), num_workers=7)
+                                               sampler=ClassAwareSampler(image_dataset, sample_over_classes=most_frequent_idx), num_workers=7)
   else:
     dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
                                                shuffle=False, num_workers=7)

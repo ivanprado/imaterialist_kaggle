@@ -1,4 +1,8 @@
-from ensemble import PositiveMeanEnsemble, MeanEnsemble, BestPerClassEnsemble
+import numpy as np
+import torch
+
+from ensemble import PositiveMeanEnsemble, MeanEnsemble, LearnersData
+import matplotlib.pyplot as plt
 
 ensemble_all = [
   "runs/"+ "May11_09-34-42_cs231n-1resnet101-bs-64-clr1e-5-0.1-mom0.9-imgsize-224-pos-weight3" + "/model_best.pth.tar", # 0.599
@@ -24,11 +28,18 @@ ensemble_4_mix = [
 
 set_type = 'test'
 thresholds_type = 'validation'
-tta = True
+tta = False
 ensemble = MeanEnsemble(ensemble_4_mix, set_type, thresholds_type, tta)
-#ensemble = BestPerClassEnsemble(ensemble_all, set_type, thresholds_type, tta, top=3)
-ensemble.infer()
+#  N, N X C, L x N x C, L x C
+image_ids, labels, confidences_LNC, thresholds = ensemble.set_data
+confidences = ensemble._combine(confidences_LNC)
+confidence_level = 0.05
+trusted_per_class = (confidences > (1 - confidence_level)) | (confidences < confidence_level)
+trusted_strict = np.alltrue(trusted_per_class, axis=1)
+trusted_relaxed = np.any(trusted_per_class, axis=1)
 
-#learners_data = LearnersData(ensemble_all, set_type, thresholds_type, tta)
-#metalearner = MetaLearner(learners_data, batch_size=1024)
-#metalearner.train(100000)
+synth_labels = trusted_per_class * (confidences > 0.5)
+torch.save("test_faux", {"image_ids": image_ids, "labels": synth_labels})
+
+
+

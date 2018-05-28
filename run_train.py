@@ -54,8 +54,9 @@ model_file = None
 model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6345, PW1!
 model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
 model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
-model_file = "runs/"+ "May24_10-35-14_cs231n-1se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6483, PW1
-model_file = "runs/"+ "May24_13-04-17_cs231n-1se_resnext50_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6525, PW1
+#model_file = "runs/"+ "May24_10-35-14_cs231n-1se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6483, PW1
+#model_file = "runs/"+ "May24_13-04-17_cs231n-1se_resnext50_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6525, PW1
+#model_file = "runs/"+ "May24_16-06-22_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6528, PW1
 
 
 #model_type = "resnet101"
@@ -91,7 +92,8 @@ num_classes = len(class_names)
 pos_weight=None
 # Using BCEWithLogitsLoss because it seems to have better numerical stability than
 # using MultiLabelSoftMarginLoss or combining a sigmoid con BCELoss
-criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoothing=0.1)
+
+criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoothing=0)
 
 # Observe that all parameters are being optimized
 #optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
@@ -102,15 +104,15 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
 #optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.5, momentum=0.5, weight_decay=1e-5) # xception
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.006, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.06, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
-lr_f = lambda x: sawtooth(0.1, 1, 2, x)
-exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lambda x: 1)
+lr_f = lambda x: sawtooth(0.1, 1, 1, x)
+exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)#lambda x: 1)
 
-trainer = Trainer("se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1",
+trainer = Trainer("se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval",
                   model,
                   criterion,
                   optimizer_ft,
@@ -155,3 +157,7 @@ trainer.train_model(1000)
 # The parameters of all BN layers were frozen for the last few training
 # epochs to ensure consistency between training and testing. (g)
 
+# TODO: Create models with different weighting for each class, so that maybe ensembling is superior
+# TODO: Test using softmax instead of sigmoids as in https://arxiv.org/pdf/1805.00932.pdf
+# TODO: Test square-root sampling as in https://arxiv.org/pdf/1805.00932.pdf
+# TODO: Test just considering one label per image, as in https://arxiv.org/pdf/1511.02251.pdf

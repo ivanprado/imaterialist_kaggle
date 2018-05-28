@@ -66,17 +66,19 @@ class MeanEnsemble(LearnersData):
     self.thresholds = None
 
   def _combine(self, confidences):
-    return confidences.mean(axis=0)
+    c = confidences.mean(axis=0)
+    return c
 
   def _calculate_thresholds(self):
-    _, labels, confidences, _ = self.thresholds_data
+    _, labels, confidences, model_thresholds = self.thresholds_data
     ensembled_confidences = self._combine(confidences)
-    self.thresholds = calculate_optimal_thresholds_one_by_one(labels, ensembled_confidences, slices=250)
+    self.thresholds = calculate_optimal_thresholds_one_by_one(labels, ensembled_confidences, slices=500)
 
   def infer(self):
     self._calculate_thresholds()
-    img_ids, labels, confidences, _ = self.set_data
+    img_ids, labels, confidences, set_thresholds = self.set_data
     fused_confidences = self._combine(confidences)
+
     vec_preds = fused_confidences > self.thresholds
     preds = vector_to_index_list(vec_preds)
 
@@ -131,6 +133,39 @@ class PositiveMeanEnsemble(MeanEnsemble):
     positives_per_sample = (positive_mask).sum(axis=0)
     positives_per_sample[positives_per_sample==0] = 1 # Avoiding div by zero problems
     return ((confidences * positive_mask).sum(axis=0) / positives_per_sample).astype(np.float32)
+
+
+class BestPerClassEnsemble(MeanEnsemble):
+  def __init__(self, model_files, set_type, set_type_for_thresholds='validation', tta=False, top=1):
+    super().__init__(model_files, set_type, set_type_for_thresholds, tta)
+    self.top = top
+    #self.train_data = self.load("train")
+    self._select_best_models(self.thresholds_data)
+
+  def _select_best_models(self, data):
+    thresholds = data[3]
+    confidences_LNC = data[2]
+    labels = data[1]
+
+    confidences_NLC = confidences_LNC.transpose((1, 0, 2))  # N x L x C
+    pred_NLC = confidences_NLC > thresholds  # N x L x C
+
+    pred_LNC = pred_NLC.transpose((1, 0, 2))
+    #tp = pred_LNC * labels
+    fp = pred_LNC * (1 - labels)
+    #tn = (1 - pred_LNC) * (1 - labels)
+    fn = (1 - pred_LNC) * (labels)
+
+    fails = fp + fn  # L x N x C
+    per_class = fails.sum(axis=1)  # L x C
+
+    best_models_for_class = np.argsort(per_class, axis=0)  # L x C
+    self.top_best_models = best_models_for_class[0:self.top, :]  # top x C
+
+  def _combine(self, confidences_LNC):
+    confidences_NLC = confidences_LNC.transpose((1, 0, 2))  # N x L x C
+    n_classes = confidences_NLC.shape[2]
+    return confidences_NLC[:, self.top_best_models, np.arange(n_classes)].mean(axis=1)
 
 
 class MetaLearnerModel(torch.nn.Module):
