@@ -47,26 +47,28 @@ model_file = "runs/"+ "May20_08-35-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.
 model_file = "runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar" # 0.6038 "Best by now"
 #model_file = "runs/"+ "May21_14-13-52_cs231n-1sexception-bs-32-clr0.1-0.01-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-just-se-modules" + "/model_best.pth.tar" # 0.6452
 #model_file = "runs/"+ "May21_15-14-40_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar" # 0.6496
-#model_file = "runs/"+ "May21_17-04-17_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6541
+model_file = "runs/"+ "May21_17-04-17_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6541
 #model_file = "runs/"+ "May21_22-09-11_cs231n-1sexception-bs-38-clr0.001-0.01-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6539
-model_file = "runs/"+ "May22_07-17-10_cs231n-1xception-bs-32-lr0.5-mom0.5-wd1e-5-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6491, PW1!
-model_file = None
-model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6345, PW1!
-model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
-model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
+#model_file = "runs/"+ "May22_07-17-10_cs231n-1xception-bs-32-lr0.5-mom0.5-wd1e-5-cutout4-minscale0.4-rota15" + "/model_best.pth.tar" # 0.6491, PW1!
+#model_file = None
+#model_file = "runs/"+ "May23_16-19-52_cs231n-1se_resnext50_32x4d-bs-64-lr0.6-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6345, PW1!
+#model_file = "runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.655, PW1
+#model_file = "runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar" # 0.6556, PW1
 #model_file = "runs/"+ "May24_10-35-14_cs231n-1se_resnext50_32x4d-bs-64-clr0.6-0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6483, PW1
 #model_file = "runs/"+ "May24_13-04-17_cs231n-1se_resnext50_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6525, PW1
 #model_file = "runs/"+ "May24_16-06-22_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar" # 0.6528, PW1
-model_file = "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar" # 0.660, PW1
-model_file = "runs/"+ "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar" # 0.6626, PW1
+#model_file = "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar" # 0.660, PW1
+#model_file = "runs/"+ "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar" # 0.6626, PW1
+#model_file = "runs/"+ "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar" # 0.6633, PW1
+
 
 
 
 #model_type = "resnet101"
 #model_type = "nasnetlarge"
 #model_type = "xception"
-#model_type = "sexception"
-model_type = "se_resnext50_32x4d"
+model_type = "sexception"
+#model_type = "se_resnext50_32x4d"
 
 pretrained=False
 if not model_file:
@@ -80,7 +82,7 @@ data_dir = 'data'
 image_datasets, dataloaders = {}, {}
 for set in sets:
   folder = os.path.join(data_dir, set)
-  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=64)
+  id, dl = get_data_loader(folder, model_type, set, annotations, batch_size=38)
   image_datasets[set] = id
   dataloaders[set] = dl
 
@@ -113,9 +115,10 @@ optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.0006, momentum=0.9, wei
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
 lr_f = lambda x: sawtooth(0.0001, 1, 3, x)
 lr_f = lambda x: sawtooth(0.1, 1, 1, x)
+lr_f = lambda x: [1, 1, 0.1, 0,1, 0.01][x%5]
 exp_lr_scheduler = lr_scheduler.LambdaLR(optimizer_ft, lr_f)#lambda x: 1)
 
-trainer = Trainer("se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval",
+trainer = Trainer("sexception-bs-38-clr0.1-0.01-0.001-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval",
                   model,
                   criterion,
                   optimizer_ft,
