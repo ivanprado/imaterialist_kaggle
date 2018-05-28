@@ -185,6 +185,7 @@ class ClassAwareSampler(Sampler):
     if sample_over_classes is None:
       iter_over = RandomCycleIter(range(n_cls))
     else:
+      print("Using just that classes for sampling: {}".format(sample_over_classes))
       iter_over = sample_over_classes
     self.class_iter = RandomCycleIter(iter_over)
     cls_data_list = [list() for _ in range(n_cls)]

@@ -277,12 +277,15 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
 
     # Focus on most frequent labels on test set
     class_freq_on_test = np.load("freq-test.npy")
-    most_frequent_idx = np.argsort(class_freq_on_test)[-50:]
+    most_frequent_idx = np.argsort(class_freq_on_test)[-25:]
     image_dataset_val = Imaterialist("data/validation", annotations['validation'], data_transforms['train'],
                                  read_labels=True)
 
     # Use validation and train set for training.
+    joines_samples = image_dataset.samples + image_dataset_val.samples
     image_dataset = ConcatDataset([image_dataset, image_dataset_val])
+    image_dataset.classes = image_dataset_val.classes
+    image_dataset.samples = joines_samples
 
     dataloader = torch.utils.data.DataLoader(image_dataset, batch_size=batch_size,
                                                sampler=ClassAwareSampler(image_dataset, sample_over_classes=most_frequent_idx), num_workers=7)
