@@ -109,7 +109,7 @@ criterion = pytorch_patches.BCEWithLogitsLoss(pos_weight=pos_weight, label_smoot
 #optimizer_ft = optim.RMSprop(list(model.last_linear.parameters()) + list(model.cell_17.parameters()), lr=0.1, weight_decay=0.00004, alpha=0.9, eps=1, momentum=0.9)
 #optimizer_ft = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9, weight_decay=0.0001) # resnet
 #optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.5, momentum=0.5, weight_decay=1e-5) # xception
-optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.0006, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
+optimizer_ft = optim.SGD(model.parameters_to_train, lr=0.1, momentum=0.9, weight_decay=1e-5) # se_resnext50_32x4d
 
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=20, gamma=0.1)
 #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=2) # for lr testing
