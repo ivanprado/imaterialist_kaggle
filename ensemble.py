@@ -39,6 +39,10 @@ class LearnersData:
       base_path = os.path.dirname(model_file)
       data_for_inference = os.path.join(base_path,
                                         "inference_{}_{}.th".format(set_type, "tta" if tta else "no_tta"))
+      if not os.path.exists(data_for_inference) and tta:
+        print("No TTA path '{}' found. Trying with no tta file".format(data_for_inference))
+        data_for_inference = os.path.join(base_path,
+                                          "inference_{}_{}.th".format(set_type, "no_tta"))
 
       l_img_ids, l_y, l_p, l_t = as_np(torch.load(data_for_inference))
       sorting = np.argsort(l_img_ids)
