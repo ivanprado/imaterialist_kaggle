@@ -20,7 +20,11 @@ model_files = [
   #"runs/"+ "May23_21-11-42_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar", # 0.655, PW1
   #"runs/"+ "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar", # 0.6556, PW1
   #"runs/"+ "May24_16-06-22_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar", # 0.6528, PW1
-  "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar", # 0.660, PW1
+  # "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar", # 0.660, PW1 NO_TTA
+  "runs/"+ "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6626, PW1
+  "runs/"+ "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6633, PW1
+  "runs/"+ "May28_21-27-57_cs231n-1sexception-bs-38-clr0.1-0.01-0.001-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6621, PW1
+  "runs/"+ "May29_06-04-06_cs231n-1se_resnext50_32x4d-bs-64-clr0.006-0.0006-mom0.9-wd1e-5-scale0.3-0.6-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6631, PW1
 ]
 
 train_samples_limit = 30000
@@ -30,7 +34,7 @@ n_models = len(model_files)
 for i, model_file in enumerate(model_files):
   print("Inference ({}/{}):".format(i+1, n_models))
   print("------------------")
-  for set_type in ['train', 'validation', 'test']:
+  for set_type in ['validation', 'test']:
     print("Set: {}".format(set_type))
     img_set_folder = "data/" + set_type
     if set_type == 'train':

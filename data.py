@@ -277,7 +277,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
 
     # Focus on most frequent labels on test set
     class_freq_on_test = np.load("freq-test.npy")
-    most_frequent_idx = np.argsort(class_freq_on_test)[-25:]
+    most_frequent_idx = np.argsort(class_freq_on_test)[-15:]
     image_dataset_val = Imaterialist("data/validation", annotations['validation'], data_transforms['train'],
                                  read_labels=True)
 
