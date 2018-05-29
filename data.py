@@ -257,11 +257,11 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
   data_transforms = {
     'train': transforms.Compose([
       transforms.RandomRotation(15),
-      transforms.RandomResizedCrop(img_size, scale=(0.4, 1)),
+      transforms.RandomResizedCrop(img_size, scale=(0.3, 1)),
       transforms.RandomHorizontalFlip(),
       transforms.ToTensor(),
       transforms.Normalize(*img_stats),
-      cutout.Cutout(1, img_size // 4),
+      #cutout.Cutout(1, img_size // 4),
     ]),
     #'train': dt_test,
     'validation': dt_test,
