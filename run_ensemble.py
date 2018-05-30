@@ -17,18 +17,29 @@ ensemble_all = [
   "runs/" + "May28_21-27-57_cs231n-1sexception-bs-38-clr0.1-0.01-0.001-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6621, PW1
   "runs/" + "May29_06-04-06_cs231n-1se_resnext50_32x4d-bs-64-clr0.006-0.0006-mom0.9-wd1e-5-scale0.3-0.6-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6631, PW1
 
+  "runs/" + "May29_19-25-32_cs231n-1se_resnext101_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6641, PW1
+  "runs/" + "May29_15-14-04_cs231n-1se_resnext101_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6637, PW1
+
+   "runs/" + "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar",  # 0.6626, PW1
+
 ]
 
 ensemble_selection = [
-  "runs/"+ "May16_13-38-21_cs231n-1resnet101-bs-64-lr0.01-mom0.9-wd4e-4-pos-weight3" + "/model_best.pth.tar", # 0.603
-  "runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar", # 0.6038
-  "runs/"+ "May21_17-04-17_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar", # 0.6541
-  "runs/" + "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar", # 0.6556, PW1
-  "runs/"+ "May24_16-06-22_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar", # 0.6528, PW1
-  "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar", # 0.660, PW1
-  "runs/" + "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6633, PW1
+  #"runs/"+ "May16_13-38-21_cs231n-1resnet101-bs-64-lr0.01-mom0.9-wd4e-4-pos-weight3" + "/model_best.pth.tar", # 0.603
+  #"runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar", # 0.6038
+  #"runs/"+ "May21_17-04-17_cs231n-1sexception-bs-38-lr0.1-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4-rota15" + "/model_best.pth.tar", # 0.6541
+  #"runs/" + "May24_07-07-00_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas" + "/model_best.pth.tar", # 0.6556, PW1
+  #"runs/"+ "May24_16-06-22_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-label-smoothing0.1" + "/model_best.pth.tar", # 0.6528, PW1
+  #"runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar", # 0.660, PW1
+  #"runs/" + "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6633, PW1
   "runs/" + "May28_21-27-57_cs231n-1sexception-bs-38-clr0.1-0.01-0.001-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6621, PW1
   "runs/" + "May29_06-04-06_cs231n-1se_resnext50_32x4d-bs-64-clr0.006-0.0006-mom0.9-wd1e-5-scale0.3-0.6-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6631, PW1
+
+  "runs/" + "May29_19-25-32_cs231n-1se_resnext101_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6641, PW1
+  "runs/" + "May29_15-14-04_cs231n-1se_resnext101_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6637, PW1
+
+  #"runs/" + "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar",  # 0.6626, PW1
+
 ]
 
 ensemble_diverse = [
@@ -38,7 +49,7 @@ ensemble_diverse = [
 ]
 
 
-set_type = 'test'
+set_type = 'validation'
 thresholds_type = 'validation'
 tta = True
 ensemble = MeanEnsemble(ensemble_selection, set_type, thresholds_type, tta)

@@ -256,7 +256,7 @@ def get_data_loader(path, model_type, type='validation', annotations=None, batch
     dt_test = dt_test_multiscale_five
   data_transforms = {
     'train': transforms.Compose([
-      transforms.RandomRotation(15),
+      #transforms.RandomRotation(15),
       transforms.RandomResizedCrop(img_size, scale=(0.3, 1)),
       transforms.RandomHorizontalFlip(),
       transforms.ToTensor(),
