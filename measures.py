@@ -79,6 +79,7 @@ def f1_score(true_positives, false_positives, false_negatives, epsilon=1e-9):
 
   See https://web.archive.org/web/20171203024544/https://www.kaggle.com/wiki/MeanFScore
   '''
+  print("TP: {} FP:{}, FN:{}".format(true_positives, false_positives, false_negatives))
   avoiding_div_by_zero = true_positives == 0
   precision = true_positives / (true_positives + false_positives + avoiding_div_by_zero)
   recall = true_positives / (true_positives + false_negatives + avoiding_div_by_zero)

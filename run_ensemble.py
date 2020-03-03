@@ -20,8 +20,8 @@ ensemble_all = [
   "runs/" + "May29_19-25-32_cs231n-1se_resnext101_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6641, PW1
   "runs/" + "May29_15-14-04_cs231n-1se_resnext101_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6637, PW1
 
-   "runs/" + "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar",  # 0.6626, PW1
-
+  "runs/" + "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar",  # 0.6626, PW1
+  "runs/" + "May30_16-09-41_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-minscale0.3-rota10-ratio0.9-1.1-cas-best-classes15-trainval" + "/model_best.pth.tar",# 0.6636
 ]
 
 ensemble_selection = [
@@ -39,21 +39,24 @@ ensemble_selection = [
   "runs/" + "May29_15-14-04_cs231n-1se_resnext101_32x4d-bs-64-lr0.06-mom0.9-wd1e-5-minscale0.3-rota15-cas-best-classes15-trainval" + "/model_best.pth.tar",  # 0.6637, PW1
 
   #"runs/" + "May28_16-26-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar",  # 0.6626, PW1
+  "runs/" + "May30_16-09-41_cs231n-1se_resnext50_32x4d-bs-64-lr0.006-mom0.9-wd1e-5-minscale0.3-rota10-ratio0.9-1.1-cas-best-classes15-trainval" + "/model_best.pth.tar",# 0.6636
+  #"runs/"+ "May30_18-09-07_cs231n-1se_resnext50_32x4d-bs-64-lr0.0006-mom0.9-wd1e-5-minscale0.3-rota10-ratio0.9-1.1-cas-best-classes10-trainval" + "/model_best.pth.tar" # 0.6628
 
+  #"runs/"+ "May30_20-14-59_cs231n-1se_resnext101_32x4d-bs-38-lr0.0006-mom0.9-wd1e-5-minscale0.3-rota10-ratio0.9-1.1-cas-best-classes-15-trainval" + "/model_best.pth.tar", # 0.6642
 ]
 
 ensemble_diverse = [
   "runs/"+ "May20_22-27-03_cs231n-1xception-bs-32-clr0.01-0.001-mom0.9-wd1e-5-pos-weight3-cutout4-minscale0.4" + "/model_best.pth.tar", # 0.6038
   "runs/"+ "May28_10-50-56_cs231n-1se_resnext50_32x4d-bs-64-clr0.06-0.006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes50-trainval" + "/model_best.pth.tar", # 0.660, PW1
-  "runs/" + "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6633, PW1
+  "runs/"+ "May28_19-19-15_cs231n-1se_resnext50_32x4d-bs-64-clr0.0006-0.00006-mom0.9-wd1e-5-cutout4-minscale0.4-rota15-cas-best-classes25-trainval" + "/model_best.pth.tar", # 0.6633, PW1
 ]
 
 
-set_type = 'validation'
+set_type = 'test'
 thresholds_type = 'validation'
 tta = True
-ensemble = MeanEnsemble(ensemble_selection, set_type, thresholds_type, tta)
-#ensemble = BestPerClassEnsemble(ensemble_selection, set_type, thresholds_type, tta, top=3)
+#ensemble = MeanEnsemble(ensemble_selection, set_type, thresholds_type, tta)
+ensemble = BestPerClassEnsemble(ensemble_selection, set_type, thresholds_type, tta, top=4)
 ensemble.infer()
 
 #learners_data = LearnersData(ensemble_all, set_type, thresholds_type, tta)

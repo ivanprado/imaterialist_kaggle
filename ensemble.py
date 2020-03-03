@@ -76,7 +76,7 @@ class MeanEnsemble(LearnersData):
   def _calculate_thresholds(self):
     _, labels, confidences, model_thresholds = self.thresholds_data
     ensembled_confidences = self._combine(confidences)
-    self.thresholds = calculate_optimal_thresholds_one_by_one(labels, ensembled_confidences, slices=500)
+    self.thresholds = calculate_optimal_thresholds_one_by_one(labels, ensembled_confidences, slices=100)
 
   def infer(self):
     self._calculate_thresholds()
